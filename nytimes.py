@@ -1,3 +1,4 @@
+# Mengying Zhang
 # GOALS
 # 1. Learn complex caching
 # 2. Debugging / refactoring
@@ -29,7 +30,8 @@ except:
 # -----------------------------------------------------------------------------
 # Cache functions
 # -----------------------------------------------------------------------------
-def has_cache_expired(timestamp_str):
+# Bug 1: def has_cache_expired(timestamp_str):
+def has_cache_expired(timestamp_str, expire_in_days):
     """Check if cache timestamp is over expire_in_days old"""
     # gives current datetime
     now = datetime.now()
@@ -44,9 +46,11 @@ def has_cache_expired(timestamp_str):
     # now that we have days as integers, we can just use comparison
     # and decide if cache has expired or not
     if delta_in_days > expire_in_days:
-        return False
-    else:
+        # Bug 2: return False
         return True
+    else:
+        # Bug 2: return True
+        return False
 
 
 def get_from_cache(url):
@@ -57,11 +61,13 @@ def get_from_cache(url):
         if has_cache_expired(url_dict['timestamp'], url_dict['expire_in_days']):
             # also remove old copy from cache
             del CACHE_DICTION[url]
-            html = None
+            html = None 
+            #print ("expired??????")
         else:
             html = CACHE_DICTION[url]['html']
     else:
         html = None
+        #print ("Not-in-cache??????")
 
     return html
 
@@ -141,9 +147,9 @@ def load_articles_from_section(section_soup):
     return story_list
 
 def extract_data_from_story_item(story_soup):
+    print (story_soup)
     title = story_soup.find('h3').text.strip()
     byline = story_soup.find('h6').text.strip()
-
     summary_p = story_soup.find('p', {'class': 'summary'})
     if summary_p:
         summary = summary_p.text.strip()
@@ -179,7 +185,8 @@ def load_articles_from_headlines_only(section_soup):
     stories = section_soup.find_all('li')
     for story_soup in stories:
         story_dict = {
-            'title': story_soup.find('h6').text.strip(),
+            # Bug 3:
+            'title': story_soup.find('a').text.strip(),
             'url': story_soup.find('a').get('href')
         }
 
@@ -196,6 +203,8 @@ def load_articles_from_headlines_only(section_soup):
             print("Has URL:", story_dict['url'] and True or False)
             print("# of related articles:", len(story_dict['related_articles']))
             print()
+            print("#######"*5)
+            print(story_soup.prettify())
             print('-'*10)
             print()
 
